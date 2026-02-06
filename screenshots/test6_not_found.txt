@@ -1,0 +1,21 @@
+==========================================
+TEST 6: Non-existent File (404 Not Found)
+==========================================
+
+Command:
+  ./retriever http://localhost:8080/doesnotexist.html
+
+Output:
+Connecting to server: localhost:8080
+Requesting file: /doesnotexist.html
+Request sent, waiting for response...
+Status: HTTP/1.0 404 Not Found
+Server returned error code 404
+Error page content:
+<html><body><h1>404 Not Found</h1><p>The requested file was not found on this server.</p></body></html>
+
+Expected Result:
+  - Status: HTTP/1.0 404 Not Found
+  - Custom error page displayed
+
+✓ TEST PASSED

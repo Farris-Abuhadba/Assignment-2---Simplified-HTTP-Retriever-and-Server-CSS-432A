@@ -1,0 +1,21 @@
+==========================================
+TEST 5: Forbidden File (403 Forbidden)
+==========================================
+
+Command:
+  ./retriever http://localhost:8080/MySecret.html
+
+Output:
+Connecting to server: localhost:8080
+Requesting file: /MySecret.html
+Request sent, waiting for response...
+Status: HTTP/1.0 403 Forbidden
+Server returned error code 403
+Error page content:
+
+
+Expected Result:
+  - Status: HTTP/1.0 403 Forbidden
+  - Error page displayed (not saved to file)
+
+✓ TEST PASSED

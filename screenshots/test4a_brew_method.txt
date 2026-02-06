@@ -1,0 +1,16 @@
+==========================================
+TEST 4a: Unallowed Method - BREW
+==========================================
+
+Command:
+  printf 'BREW /coffee.html HTTP/1.0\r\nHost: localhost\r\n\r\n' | nc localhost 8080
+
+Output:
+HTTP/1.0 418 I'm a teapot
+Connection: close
+
+
+Expected Result:
+  - Status: HTTP/1.0 418 I'm a teapot
+
+✓ TEST PASSED

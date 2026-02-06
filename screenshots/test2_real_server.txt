@@ -1,0 +1,19 @@
+==========================================
+TEST 2: Retriever -> Real Server
+==========================================
+
+Command:
+  ./retriever http://httpforever.com/
+
+Output:
+Connecting to server: httpforever.com:80
+Requesting file: /
+Request sent, waiting for response...
+Status: HTTP/1.1 200 OK
+File saved as: index.html
+
+Expected Result:
+  - Status: HTTP/1.1 200 OK
+  - File saved successfully
+
+✓ TEST PASSED

@@ -1,0 +1,19 @@
+==========================================
+TEST 3: Retriever -> Your Server (200 OK)
+==========================================
+
+Command:
+  ./retriever http://localhost:8080/index.html
+
+Output:
+Connecting to server: localhost:8080
+Requesting file: /index.html
+Request sent, waiting for response...
+Status: HTTP/1.0 200 OK
+File saved as: index.html
+
+Expected Result:
+  - Status: HTTP/1.0 200 OK
+  - File saved successfully
+
+✓ TEST PASSED

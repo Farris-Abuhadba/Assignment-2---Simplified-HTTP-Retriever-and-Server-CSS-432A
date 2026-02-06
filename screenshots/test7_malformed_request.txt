@@ -1,0 +1,16 @@
+==========================================
+TEST 7: Malformed Request (400 Bad Request)
+==========================================
+
+Command:
+  printf 'HELLO WORLD\r\n' | nc localhost 8080
+
+Output:
+HTTP/1.0 400 Bad Request
+Connection: close
+
+
+Expected Result:
+  - Status: HTTP/1.0 400 Bad Request
+
+✓ TEST PASSED
