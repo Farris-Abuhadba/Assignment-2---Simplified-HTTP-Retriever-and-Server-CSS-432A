@@ -16,6 +16,15 @@
 
 #define BUFFER_SIZE 4096
 
+/**
+ * Main function - HTTP Web Server
+ * Listens on port 8080, handles GET requests, serves files or returns error codes.
+ * 
+ * @return 0 on success, 1 on error
+ * 
+ * Handles: 200 OK, 400 Bad Request, 403 Forbidden, 404 Not Found, 
+ *          405 Method Not Allowed, 418 I'm a teapot
+ */
 int main() {
     int port = 8080;
 

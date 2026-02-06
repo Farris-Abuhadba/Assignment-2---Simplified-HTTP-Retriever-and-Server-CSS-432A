@@ -19,6 +19,14 @@
 
 #define BUFFER_SIZE 4096
 
+/**
+ * Main function - HTTP Retriever Client
+ * Parses URL, connects to server, sends GET request, saves file or displays error.
+ * 
+ * @param argc Command line argument count (expects 2)
+ * @param argv Command line arguments - argv[1] is URL (http://host:port/path)
+ * @return 0 on success, 1 on error
+ */
 int main(int argc, char* argv[]) {
     // Check for correct number of arguments
     if (argc != 2) {

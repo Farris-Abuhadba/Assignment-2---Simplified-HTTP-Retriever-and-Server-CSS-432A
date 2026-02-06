@@ -2,18 +2,10 @@
 TEST 1: Real Web Browser -> Your Server
 ==========================================
 
-Instructions:
-1. Start the webserver: ./webserver
-2. Open your web browser (Microsoft Edge, Chrome, Firefox, etc.)
-3. Navigate to: http://localhost:8080/index.html
-4. Take a screenshot showing the page loaded successfully
-5. The screenshot should show:
-   - The URL bar with http://localhost:8080/index.html
-   - The page content displaying
+For Screenshot must run ./webserver at the end on its own to get the output in the browser
 
 Expected Result:
 - Browser displays the HTML content
 - Server returns HTTP 200 OK
 - Page renders successfully
 
-✓ MANUAL TEST - Screenshot required
