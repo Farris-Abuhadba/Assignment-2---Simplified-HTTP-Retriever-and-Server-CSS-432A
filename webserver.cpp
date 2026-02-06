@@ -1,4 +1,12 @@
+/*
+    Farris Abu-Hadba
+    CSS 432A - Network Design and Programming
+    Assignment 2 - Simplified HTTP Retriever and Server
+    Webserver Program (webserver.cpp)
+*/
+
 #include <iostream>
+#include <fstream>
 #include <sstream>
 #include <string>
 #include <cstring>
@@ -8,20 +16,10 @@
 
 #define BUFFER_SIZE 4096
 
-// Send a simple HTTP response with no body
-void sendSimpleResponse(int client, const std::string& status)
-{
-    std::ostringstream resp;
-    resp << "HTTP/1.0 " << status << "\r\n" << "Connection: close\r\n\r\n";
-
-    write(client, resp.str().c_str(), resp.str().length());
-}
-
-int main()
-{
+int main() {
     int port = 8080;
 
-    // Create socket
+    // Create TCP socket
     int serverSd = socket(AF_INET, SOCK_STREAM, 0);
     if (serverSd < 0) {
         perror("socket");
@@ -32,33 +30,33 @@ int main()
     int on = 1;
     setsockopt(serverSd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on));
 
-    // Bind
-    sockaddr_in addr;
-    memset(&addr, 0, sizeof(addr));
-    addr.sin_family = AF_INET;
-    addr.sin_addr.s_addr = INADDR_ANY;
-    addr.sin_port = htons(port);
+    // Set up server address
+    sockaddr_in serverAddr;
+    memset(&serverAddr, 0, sizeof(serverAddr));
+    serverAddr.sin_family = AF_INET;
+    serverAddr.sin_addr.s_addr = INADDR_ANY;
+    serverAddr.sin_port = htons(port);
 
-    if (bind(serverSd, (sockaddr*)&addr, sizeof(addr)) < 0) {
+    // Bind socket
+    if (bind(serverSd, (sockaddr*)&serverAddr, sizeof(serverAddr)) < 0) {
         perror("bind");
         return 1;
     }
 
-    // Listen
+    // Listen for connections
     listen(serverSd, 5);
     std::cout << "Server listening on port " << port << std::endl;
 
-    // Main accept loop
     while (true) {
-        int client = accept(serverSd, nullptr, nullptr);
-        if (client < 0) {
+        int clientSd = accept(serverSd, nullptr, nullptr);
+        if (clientSd < 0) {
             continue;
         }
 
         char buffer[BUFFER_SIZE];
-        int bytes = read(client, buffer, BUFFER_SIZE - 1);
+        int bytes = read(clientSd, buffer, BUFFER_SIZE - 1);
         if (bytes <= 0) {
-            close(client);
+            close(clientSd);
             continue;
         }
 
@@ -69,18 +67,101 @@ int main()
         std::string method, path, version;
         request >> method >> path >> version;
 
-        // If we cannot parse the request line → 400 Bad Request
+        // Malformed request
         if (method.empty() || path.empty() || version.empty()) {
-            sendSimpleResponse(client, "400 Bad Request");
-            close(client);
+            std::string response =
+                "HTTP/1.0 400 Bad Request\r\n"
+                "Connection: close\r\n\r\n";
+            write(clientSd, response.c_str(), response.length());
+            close(clientSd);
             continue;
         }
 
-        // For Phase 4, we stop here — just acknowledge request
-        // (Phase 5+ will add real logic)
-        sendSimpleResponse(client, "200 OK");
+        // BREW method
+        if (method == "BREW") {
+            std::string response =
+                "HTTP/1.0 418 I'm a teapot\r\n"
+                "Connection: close\r\n\r\n";
+            write(clientSd, response.c_str(), response.length());
+            close(clientSd);
+            continue;
+        }
 
-        close(client);
+        // Only GET is allowed
+        if (method != "GET") {
+            std::string response =
+                "HTTP/1.0 405 Method Not Allowed\r\n"
+                "Connection: close\r\n\r\n";
+            write(clientSd, response.c_str(), response.length());
+            close(clientSd);
+            continue;
+        }
+
+        // Forbidden file name
+        if (path == "/MySecret.html") {
+            std::string response =
+                "HTTP/1.0 403 Forbidden\r\n"
+                "Connection: close\r\n\r\n";
+            write(clientSd, response.c_str(), response.length());
+            close(clientSd);
+            continue;
+        }
+
+        // Directory traversal attempt
+        if (path.find("..") != std::string::npos) {
+            std::string response =
+                "HTTP/1.0 403 Forbidden\r\n"
+                "Connection: close\r\n\r\n";
+            write(clientSd, response.c_str(), response.length());
+            close(clientSd);
+            continue;
+        }
+
+        // Remove leading '/' from path to get filename
+        std::string filename = path.substr(1);
+        if (filename.empty()) {
+            filename = "index.html";
+        }
+
+        // Try to open the file
+        std::ifstream file(filename, std::ios::binary);
+        if (!file) {
+            // File does not exist - send 404
+            std::string errorPage = 
+                "<html><body>"
+                "<h1>404 Not Found</h1>"
+                "<p>The requested file was not found on this server.</p>"
+                "</body></html>";
+            
+            std::string response =
+                "HTTP/1.0 404 Not Found\r\n"
+                "Connection: close\r\n"
+                "Content-Type: text/html\r\n"
+                "\r\n" + errorPage;
+            
+            write(clientSd, response.c_str(), response.length());
+            close(clientSd);
+            continue;
+        }
+
+        // File exists - read the entire file
+        std::string fileContent;
+        char fileBuffer[BUFFER_SIZE];
+        while (file.read(fileBuffer, BUFFER_SIZE)) {
+            fileContent.append(fileBuffer, file.gcount());
+        }
+        fileContent.append(fileBuffer, file.gcount());
+        file.close();
+
+        // Send 200 OK with file content
+        std::string response =
+            "HTTP/1.0 200 OK\r\n"
+            "Connection: close\r\n"
+            "Content-Type: text/html\r\n"
+            "\r\n" + fileContent;
+        
+        write(clientSd, response.c_str(), response.length());
+        close(clientSd);
     }
 
     return 0;
